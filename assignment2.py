@@ -51,7 +51,7 @@ def percent_to_graph(percent: float, length: int = 20) -> str:
 
 
 def get_sys_mem() -> int:
-    """Return the total system memory (in kB) from /proc/meminfo."""
+    """Returns the total system memory (in kB) from /proc/meminfo."""
     with open('/proc/meminfo', 'r') as meminfo:
         for line in meminfo:
             if line.startswith("MemTotal"):
@@ -61,7 +61,7 @@ def get_sys_mem() -> int:
 
 
 def get_avail_mem() -> int:
-    """Return the available memory (in kB) from /proc/meminfo."""
+    """Returns the available memory (in kB) from /proc/meminfo."""
     with open('/proc/meminfo', 'r') as meminfo:
         for line in meminfo:
             if line.startswith("MemAvailable"):
@@ -70,16 +70,16 @@ def get_avail_mem() -> int:
     return 0
 
 def pids_of_prog(program: str) -> list:
-    """Return a list of process IDs (pids) for the given program."""
-    # Use os.popen to execute the pidof command and capture the output
+    """Returns a list of process IDs (pids) for the given program."""
+    """ Uses os.popen to execute the pidof command and capture the output """
     output = os.popen(f"pidof {program}").read()
-    # Split the output string into a list of pids, strip any excess whitespace
+    """ Split the output string into a list of pids, strip any excess whitespace """
     pids = output.strip().split()
     return pids
 
 
 def rss_mem_of_pid(proc_id: str) -> int:
-    """Return the RSS memory usage (in kB) for a given PID."""
+    """Returns the RSS memory usage (in kB) for a given PID."""
     rss_mem = 0
     try:
         with open(f'/proc/{proc_id}/smaps', 'r') as smaps:
@@ -92,8 +92,8 @@ def rss_mem_of_pid(proc_id: str) -> int:
 
 
 def bytes_to_human_r(kibibytes: int, decimal_places: int = 2) -> str:
-    """Convert bytes to a human-readable format."""
-    suffixes = ['KiB', 'MiB', 'GiB', 'TiB', 'PiB']  # iB indicates 1024
+    """Converts bytes to a human-readable format."""
+    suffixes = ['KiB', 'MiB', 'GiB', 'TiB', 'PiB']
     suf_count = 0
     result = kibibytes
     while result > 1024 and suf_count < len(suffixes) - 1:
@@ -105,19 +105,19 @@ def bytes_to_human_r(kibibytes: int, decimal_places: int = 2) -> str:
 if __name__ == "__main__":
     args = parse_command_args()
 
-    # Get total and available system memory
+    """ Gets total and available system memory """
     total_mem_kb = get_sys_mem()
     available_mem_kb = get_avail_mem()
     used_mem_kb = total_mem_kb - available_mem_kb
     mem_percent = used_mem_kb / total_mem_kb
 
     if not args.program:
-        # No program argument, show total memory usage
+        """ No program argument, show total memory usage """
         print(f"Memory {percent_to_graph(mem_percent, args.length)} {used_mem_kb}/{total_mem_kb}")
         if args.human_readable:
             print(f"Memory {percent_to_graph(mem_percent, args.length)} {bytes_to_human_r(used_mem_kb)}/{bytes_to_human_r(total_mem_kb)}")
     else:
-        # Show memory usage of specific program's processes
+        """ Shows memory usage of specific program's processes """
         pids = pids_of_prog(args.program)
         total_rss = 0
         for pid in pids:
